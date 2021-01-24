@@ -2,6 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
 
 const env = process.env.NODE_ENV;
 
@@ -13,7 +15,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].bundle.js',
-    publicPath: '/'
+    publicPath: ''
   },
 
   devServer: {
@@ -23,7 +25,7 @@ module.exports = {
         watch: true,
       }
     ],
-    port: 3500,
+    port: 3345,
   },
 
   module: {
@@ -34,12 +36,24 @@ module.exports = {
         use: 'babel-loader'
       },
       {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
+      {
         test: /\.(sa|sc|c)ss$/,
         use: [
           env == 'development' ? 'style-loader' : MiniCssExtractPlugin.loader,
           'css-loader',
           'sass-loader',
         ]
+      },
+       {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+          },
+        ],
       }
     ]
   },
@@ -52,6 +66,14 @@ module.exports = {
       // both options are optional
       filename: "[name].css",
       chunkFilename: "[id].css"
-    })
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "app/static", to: "static" },
+      ],
+    }),
+    new CleanWebpackPlugin(),
   ]
 };
+
+// /\.(woff|woff2|eot|ttf)$/
